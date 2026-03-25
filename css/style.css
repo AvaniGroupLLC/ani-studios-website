@@ -1685,8 +1685,40 @@ h3 {
   }
 }
 
-/* Lightbox responsive: mobile — Instagram post layout */
-@media (max-width: 600px) {
+/* IG header + IG caption: hidden on desktop */
+.brands-lightbox__ig-header,
+.brands-lightbox__ig-caption {
+  display: none;
+}
+
+/* Lightbox responsive: mobile — true Instagram post modal */
+@media (max-width: 768px) {
+
+  /* === GRID: tighten to Instagram profile === */
+  .brands-header {
+    padding: 70px 16px 10px;
+  }
+  .brands-header__subtitle {
+    display: none;
+  }
+  .brands-header__title {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+  }
+  .brands-ig-grid {
+    padding: 8px 0 0;
+  }
+  .brands-ig-grid__container {
+    gap: 2px;
+  }
+  .brands-credits {
+    display: none;
+  }
+  .brands-ig-grid__item:hover img {
+    opacity: 1;
+  }
+
+  /* === LIGHTBOX: Instagram post modal === */
   .brands-lightbox__container {
     width: 100vw;
     max-width: 100vw;
@@ -1695,7 +1727,6 @@ h3 {
     max-height: none;
   }
 
-  /* Centered card layout — image + caption as a single unit */
   .brands-lightbox__content {
     flex-direction: column;
     height: 100vh;
@@ -1704,101 +1735,125 @@ h3 {
     border: none;
     border-radius: 0;
     overflow: hidden;
-    justify-content: center;
+    background: #000;
+    justify-content: flex-start;
     align-items: stretch;
     box-sizing: border-box;
-    /* Asymmetric padding pushes card into upper ~40% center */
-    padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 15vh);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 15dvh);
+    padding: 0;
   }
 
-  /* Image area: natural height, never more than 58% of viewport */
+  /* Instagram post header: avatar + username */
+  .brands-lightbox__ig-header {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #000;
+    z-index: 3;
+  }
+
+  .brands-lightbox__ig-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    border: 1.5px solid rgba(201, 169, 110, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #c9a96e;
+    flex-shrink: 0;
+  }
+
+  .brands-lightbox__ig-username {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #f5f0eb;
+    letter-spacing: 0;
+  }
+
+  /* Image area: full width, natural height */
   .brands-lightbox__image-wrap {
     flex: 0 0 auto;
-    min-height: 0;
-    max-height: 58vh;
-    max-height: 58dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 0 16px;
+    background: #000;
+    min-height: 0;
+    max-height: none;
+    padding: 0;
     position: relative;
   }
 
   .brands-lightbox__image {
-    max-height: 58vh;
-    max-height: 58dvh;
-    max-width: calc(100vw - 32px);
-    width: auto;
+    width: 100%;
     height: auto;
+    max-height: 65vh;
+    max-height: 65dvh;
     object-fit: contain;
+    display: block;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
-  /* Caption: flush below image, 16px gap, left-aligned per spec */
+  /* Caption panel */
   .brands-lightbox__caption-panel {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    padding: 14px 16px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     border-left: none;
     border-top: none;
-    padding: 16px 24px 0 24px;
+    background: #000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    overflow: hidden;
-    max-height: none;
-    background: transparent;
   }
 
-  .brands-lightbox__caption-logo {
-    font-size: 0.5rem;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.25em;
+  /* Hide desktop caption style, show IG caption */
+  .brands-lightbox__caption-inner {
+    display: none;
   }
 
-  .brands-lightbox__caption-text {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 300;
-    font-size: 0.75rem;
-    line-height: 1.5;
-    color: rgba(245, 240, 235, 0.55);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .brands-lightbox__ig-caption {
+    display: inline;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    color: rgba(245, 240, 235, 0.85);
   }
 
-  /* Nav arrows: JS positions these dynamically on the image center */
+  .brands-lightbox__ig-caption-user {
+    font-weight: 600;
+    color: #f5f0eb;
+    margin-right: 5px;
+  }
+
+  .brands-lightbox__ig-caption-text {
+    font-weight: 400;
+  }
+
+  /* Hide prev/next arrows on mobile — swipe only */
   .brands-lightbox__prev,
   .brands-lightbox__next {
-    transform: translateY(-50%);
-    padding: 0;
-    font-size: 1.3rem;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-    color: rgba(255, 255, 255, 0.7);
-    transition: none;
+    display: none !important;
   }
 
-  .brands-lightbox__prev {
-    left: 8px;
-  }
-
-  .brands-lightbox__next {
-    right: 8px;
-  }
-
-  /* Close button: top-right circle */
+  /* Close button: top-right, inside the header area */
   .brands-lightbox__close {
     position: absolute;
-    top: calc(10px + env(safe-area-inset-top, 0px));
-    right: 10px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: 12px;
     font-size: 1.6rem;
     padding: 0;
     width: 44px;
@@ -1806,32 +1861,28 @@ h3 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 50%;
+    background: none;
+    border: none;
+    border-radius: 0;
     -webkit-tap-highlight-color: transparent;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.85);
+    z-index: 5;
   }
 }
 
-/* Extra-small phones */
+/* Extra-small phones: tighten grid further */
 @media (max-width: 380px) {
-  .brands-lightbox__content {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12vh);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12dvh);
-  }
-
-  .brands-lightbox__image-wrap {
-    max-height: 52vh;
-    max-height: 52dvh;
+  .brands-ig-grid__container {
+    gap: 1px;
   }
 
   .brands-lightbox__image {
-    max-height: 52vh;
-    max-height: 52dvh;
+    max-height: 58vh;
+    max-height: 58dvh;
   }
 
-  .brands-lightbox__caption-text {
-    font-size: 0.7rem;
+  .brands-lightbox__ig-caption {
+    font-size: 13px;
   }
 }
 
@@ -1995,23 +2046,6 @@ h3 {
     border-right: none !important;
   }
 
-  .brands-header {
-    padding: 80px 24px 30px;
-  }
-
-  .brands-header__subtitle {
-    font-size: 0.75rem;
-    max-width: 400px;
-  }
-
-  .brands-ig-grid__container {
-    gap: 2px;
-  }
-
-  .brands-credits {
-    padding: 3.5rem 1.5rem 3rem;
-  }
-
   .about-content {
     padding: 0 24px;
   }
@@ -2052,43 +2086,6 @@ h3 {
 
   .service-block {
     padding: 1.5rem 0;
-  }
-
-  .brands-header {
-    padding: 60px 16px 20px;
-  }
-
-  .brands-header__title {
-    font-size: 0.85rem;
-    letter-spacing: 0.3em;
-  }
-
-  .brands-header__subtitle {
-    font-size: 0.7rem;
-    max-width: 300px;
-    line-height: 1.6;
-  }
-
-  .brands-ig-grid {
-    padding: 14px 0 0;
-  }
-
-  .brands-ig-grid__container {
-    gap: 1px;
-  }
-
-  .brands-credits {
-    padding: 2.5rem 1.25rem 2rem;
-  }
-
-  .brands-credits__heading {
-    font-size: 0.58rem;
-    letter-spacing: 0.2em;
-    margin-bottom: 1rem;
-  }
-
-  .brands-credits__list {
-    font-size: 0.65rem;
   }
 
   .about-content {
