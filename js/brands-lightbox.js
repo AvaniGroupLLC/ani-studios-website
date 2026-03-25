@@ -1,31 +1,67 @@
 /* ============================================
-   ANI STUDIOS — Brands Instagram-Style Lightbox
-   Mobile-optimized: full-screen, swipe, touch targets
+   ANI STUDIOS — Brands Lightbox
+   Instant navigation, preloading, zero lag
    ============================================ */
 
 (function() {
   'use strict';
 
-  const lightbox = document.getElementById('brandsLightbox');
+  var lightbox = document.getElementById('brandsLightbox');
   if (!lightbox) return;
 
-  const overlay = lightbox.querySelector('.brands-lightbox__overlay');
-  const closeBtn = lightbox.querySelector('.brands-lightbox__close');
-  const prevBtn = lightbox.querySelector('.brands-lightbox__prev');
-  const nextBtn = lightbox.querySelector('.brands-lightbox__next');
-  const image = lightbox.querySelector('.brands-lightbox__image');
-  const captionText = lightbox.querySelector('.brands-lightbox__caption-text');
-  const items = document.querySelectorAll('.brands-ig-grid__item');
+  var overlay = lightbox.querySelector('.brands-lightbox__overlay');
+  var closeBtn = lightbox.querySelector('.brands-lightbox__close');
+  var prevBtn = lightbox.querySelector('.brands-lightbox__prev');
+  var nextBtn = lightbox.querySelector('.brands-lightbox__next');
+  var image = lightbox.querySelector('.brands-lightbox__image');
+  var captionText = lightbox.querySelector('.brands-lightbox__caption-text');
+  var imageWrap = lightbox.querySelector('.brands-lightbox__image-wrap');
+  var items = document.querySelectorAll('.brands-ig-grid__item');
 
-  let currentIndex = 0;
-  let isOpen = false;
-  let scrollPosition = 0;
+  var currentIndex = 0;
+  var isOpen = false;
+  var scrollPosition = 0;
+  var preloadCache = {};
+
+  // Build source list once
+  var sources = [];
+  items.forEach(function(item) {
+    sources.push({
+      src: item.getAttribute('data-src'),
+      caption: item.getAttribute('data-caption')
+    });
+  });
+
+  // Preload an image by index (no-op if already cached)
+  function preload(index) {
+    if (index < 0 || index >= sources.length) return;
+    var src = sources[index].src;
+    if (preloadCache[src]) return;
+    var img = new Image();
+    img.src = src;
+    preloadCache[src] = img;
+  }
+
+  // Preload neighbors
+  function preloadNeighbors(index) {
+    preload((index + 1) % sources.length);
+    preload((index - 1 + sources.length) % sources.length);
+    preload((index + 2) % sources.length);
+  }
+
+  function updateContent() {
+    var data = sources[currentIndex];
+    image.src = data.src;
+    image.alt = data.caption;
+    captionText.textContent = data.caption;
+    preloadNeighbors(currentIndex);
+  }
 
   function open(index) {
     currentIndex = index;
     updateContent();
 
-    // Save scroll position and lock body (prevents iOS bounce)
+    // Lock body scroll (iOS-safe)
     scrollPosition = window.pageYOffset;
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
@@ -41,7 +77,6 @@
     lightbox.setAttribute('aria-hidden', 'true');
     lightbox.classList.remove('is-active');
 
-    // Restore scroll position
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.top = '';
@@ -52,57 +87,28 @@
   }
 
   function prev() {
-    currentIndex = (currentIndex - 1 + items.length) % items.length;
+    currentIndex = (currentIndex - 1 + sources.length) % sources.length;
     updateContent();
   }
 
   function next() {
-    currentIndex = (currentIndex + 1) % items.length;
+    currentIndex = (currentIndex + 1) % sources.length;
     updateContent();
   }
 
-  function updateContent() {
-    var item = items[currentIndex];
-    var src = item.getAttribute('data-src');
-    var caption = item.getAttribute('data-caption');
-
-    // Fade image transition
-    image.style.opacity = '0';
-    setTimeout(function() {
-      image.src = src;
-      image.alt = caption;
-      image.onload = function() {
-        image.style.opacity = '1';
-      };
-    }, 120);
-
-    captionText.textContent = caption;
-  }
-
-  // Click on grid items
+  // Grid clicks
   items.forEach(function(item, i) {
-    item.addEventListener('click', function() {
-      open(i);
-    });
+    item.addEventListener('click', function() { open(i); });
     item.style.cursor = 'pointer';
   });
 
   // Close
-  closeBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    close();
-  });
+  closeBtn.addEventListener('click', function(e) { e.stopPropagation(); close(); });
   overlay.addEventListener('click', close);
 
-  // Nav buttons
-  prevBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    prev();
-  });
-  nextBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    next();
-  });
+  // Nav
+  prevBtn.addEventListener('click', function(e) { e.stopPropagation(); prev(); });
+  nextBtn.addEventListener('click', function(e) { e.stopPropagation(); next(); });
 
   // Keyboard
   document.addEventListener('keydown', function(e) {
@@ -112,58 +118,31 @@
     if (e.key === 'ArrowRight') next();
   });
 
-  // Swipe support for mobile — only on the image area
+  // Swipe on image area
   var touchStartX = 0;
   var touchStartY = 0;
-  var touchEndX = 0;
-  var touchEndY = 0;
-  var isSwiping = false;
-
-  var imageWrap = lightbox.querySelector('.brands-lightbox__image-wrap');
 
   imageWrap.addEventListener('touchstart', function(e) {
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
-    isSwiping = true;
   }, { passive: true });
 
   imageWrap.addEventListener('touchmove', function(e) {
-    if (!isSwiping) return;
-    var diffX = Math.abs(e.changedTouches[0].screenX - touchStartX);
-    var diffY = Math.abs(e.changedTouches[0].screenY - touchStartY);
-    // If horizontal swipe, prevent vertical scroll
-    if (diffX > diffY && diffX > 10) {
-      e.preventDefault();
-    }
+    var dx = Math.abs(e.changedTouches[0].screenX - touchStartX);
+    var dy = Math.abs(e.changedTouches[0].screenY - touchStartY);
+    if (dx > dy && dx > 10) e.preventDefault();
   }, { passive: false });
 
   imageWrap.addEventListener('touchend', function(e) {
-    if (!isSwiping) return;
-    isSwiping = false;
-    touchEndX = e.changedTouches[0].screenX;
-    touchEndY = e.changedTouches[0].screenY;
-    var diffX = touchStartX - touchEndX;
-    var diffY = Math.abs(touchStartY - touchEndY);
-
-    // Only register horizontal swipes (not vertical scroll)
-    if (Math.abs(diffX) > 40 && Math.abs(diffX) > diffY) {
-      if (diffX > 0) next();
-      else prev();
+    var dx = touchStartX - e.changedTouches[0].screenX;
+    var dy = Math.abs(touchStartY - e.changedTouches[0].screenY);
+    if (Math.abs(dx) > 35 && Math.abs(dx) > dy) {
+      if (dx > 0) next(); else prev();
     }
   }, { passive: true });
 
-  // Also allow close by tapping the image area (single tap without swipe)
-  var tapTimer = null;
-  imageWrap.addEventListener('touchend', function(e) {
-    var diffX = Math.abs(touchStartX - e.changedTouches[0].screenX);
-    var diffY = Math.abs(touchStartY - e.changedTouches[0].screenY);
-    // Only close on tap (not swipe)
-    if (diffX < 10 && diffY < 10) {
-      // Don't close on tap — use X button instead.
-      // This prevents accidental closes during navigation.
-    }
-  }, { passive: true });
-
-  // Add smooth opacity transition to lightbox image
-  image.style.transition = 'opacity 0.15s ease';
+  // Eagerly preload first few images on page load
+  for (var i = 0; i < Math.min(6, sources.length); i++) {
+    preload(i);
+  }
 })();
