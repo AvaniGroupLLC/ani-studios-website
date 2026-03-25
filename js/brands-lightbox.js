@@ -1,37 +1,19 @@
 /* ============================================
-   ANI STUDIOS — Brands Lightbox
-   Instagram-style post modal on mobile
-   Desktop: arrow nav + keyboard
-   Mobile: swipe-only with smooth slide
+   ANI STUDIOS — Brands Gallery
+   Desktop (>768px): Lightbox with arrow nav
+   Mobile  (≤768px): Instagram-style scrollable feed
    ============================================ */
 
 (function() {
   'use strict';
 
   var lightbox = document.getElementById('brandsLightbox');
-  if (!lightbox) return;
-
-  var overlay = lightbox.querySelector('.brands-lightbox__overlay');
-  var closeBtn = lightbox.querySelector('.brands-lightbox__close');
-  var prevBtn = lightbox.querySelector('.brands-lightbox__prev');
-  var nextBtn = lightbox.querySelector('.brands-lightbox__next');
-  var image = lightbox.querySelector('.brands-lightbox__image');
-  var captionText = lightbox.querySelector('.brands-lightbox__caption-text');
-  var igCaptionText = lightbox.querySelector('.brands-lightbox__ig-caption-text');
-  var imageWrap = lightbox.querySelector('.brands-lightbox__image-wrap');
-  var content = lightbox.querySelector('.brands-lightbox__content');
+  var feedEl = document.getElementById('brandsFeed');
   var items = document.querySelectorAll('.brands-ig-grid__item');
 
-  var currentIndex = 0;
-  var isOpen = false;
-  var scrollPosition = 0;
-  var preloadCache = {};
+  if (!items.length) return;
 
-  function isMobile() {
-    return window.innerWidth <= 768;
-  }
-
-  // Build source list once
+  // Build sources array from grid data attributes
   var sources = [];
   items.forEach(function(item) {
     sources.push({
@@ -40,204 +22,239 @@
     });
   });
 
-  // Preload an image by index
-  function preload(index) {
-    if (index < 0 || index >= sources.length) return;
-    var src = sources[index].src;
+  function isMobile() {
+    return window.innerWidth <= 768;
+  }
+
+  // ============================================
+  //  DESKTOP: Lightbox
+  // ============================================
+
+  var lbOverlay, lbClose, lbPrev, lbNext, lbImage, lbCaptionText;
+  var lbCurrentIndex = 0;
+  var lbIsOpen = false;
+  var preloadCache = {};
+
+  if (lightbox) {
+    lbOverlay = lightbox.querySelector('.brands-lightbox__overlay');
+    lbClose = lightbox.querySelector('.brands-lightbox__close');
+    lbPrev = lightbox.querySelector('.brands-lightbox__prev');
+    lbNext = lightbox.querySelector('.brands-lightbox__next');
+    lbImage = lightbox.querySelector('.brands-lightbox__image');
+    lbCaptionText = lightbox.querySelector('.brands-lightbox__caption-text');
+
+    lbClose.addEventListener('click', function(e) { e.stopPropagation(); closeLightbox(); });
+    lbOverlay.addEventListener('click', closeLightbox);
+    lbPrev.addEventListener('click', function(e) { e.stopPropagation(); lbGoPrev(); });
+    lbNext.addEventListener('click', function(e) { e.stopPropagation(); lbGoNext(); });
+  }
+
+  function preload(idx) {
+    if (idx < 0 || idx >= sources.length) return;
+    var src = sources[idx].src;
     if (preloadCache[src]) return;
     var img = new Image();
     img.src = src;
     preloadCache[src] = img;
   }
 
-  function preloadNeighbors(index) {
-    preload((index + 1) % sources.length);
-    preload((index - 1 + sources.length) % sources.length);
-    preload((index + 2) % sources.length);
+  function updateLightbox() {
+    var data = sources[lbCurrentIndex];
+    lbImage.src = data.src;
+    lbImage.alt = data.caption;
+    if (lbCaptionText) lbCaptionText.textContent = data.caption;
+    preload((lbCurrentIndex + 1) % sources.length);
+    preload((lbCurrentIndex - 1 + sources.length) % sources.length);
   }
 
-  function updateContent() {
-    var data = sources[currentIndex];
-    image.src = data.src;
-    image.alt = data.caption;
-    if (captionText) captionText.textContent = data.caption;
-    if (igCaptionText) igCaptionText.textContent = data.caption;
-    preloadNeighbors(currentIndex);
-  }
-
-  function open(index) {
-    currentIndex = index;
-    updateContent();
-
-    // Lock body scroll (iOS-safe)
-    scrollPosition = window.pageYOffset;
+  function openLightbox(index) {
+    if (!lightbox) return;
+    lbCurrentIndex = index;
+    updateLightbox();
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = '-' + scrollPosition + 'px';
-    document.body.style.width = '100%';
-
     lightbox.setAttribute('aria-hidden', 'false');
     lightbox.classList.add('is-active');
-    isOpen = true;
+    lbIsOpen = true;
   }
 
-  function close() {
+  function closeLightbox() {
+    if (!lightbox) return;
     lightbox.setAttribute('aria-hidden', 'true');
     lightbox.classList.remove('is-active');
+    document.body.style.overflow = '';
+    lbIsOpen = false;
+  }
 
+  function lbGoPrev() {
+    lbCurrentIndex = (lbCurrentIndex - 1 + sources.length) % sources.length;
+    updateLightbox();
+  }
+
+  function lbGoNext() {
+    lbCurrentIndex = (lbCurrentIndex + 1) % sources.length;
+    updateLightbox();
+  }
+
+  // Keyboard nav for desktop lightbox
+  document.addEventListener('keydown', function(e) {
+    if (!lbIsOpen) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lbGoPrev();
+    if (e.key === 'ArrowRight') lbGoNext();
+  });
+
+  // ============================================
+  //  MOBILE: Instagram Feed View
+  // ============================================
+
+  var feedBuilt = false;
+  var feedObserver = null;
+  var feedScrollPos = 0;
+  var feedIsOpen = false;
+  var topbarHeight = 0;
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function buildFeed() {
+    if (feedBuilt || !feedEl) return;
+
+    // Build sticky top bar
+    var topbar = document.createElement('div');
+    topbar.className = 'brands-feed__topbar';
+    topbar.innerHTML =
+      '<button class="brands-feed__back" aria-label="Back to grid">' +
+        '<svg class="brands-feed__back-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="15 18 9 12 15 6"></polyline>' +
+        '</svg>' +
+        '<span>Posts</span>' +
+      '</button>';
+    feedEl.appendChild(topbar);
+
+    topbar.querySelector('.brands-feed__back').addEventListener('click', closeFeed);
+
+    // Build all 36 posts
+    var postsWrap = document.createElement('div');
+    postsWrap.className = 'brands-feed__posts';
+
+    sources.forEach(function(data, index) {
+      var post = document.createElement('article');
+      post.className = 'brands-feed__post';
+      post.setAttribute('data-feed-index', index);
+
+      post.innerHTML =
+        '<div class="brands-feed__post-header">' +
+          '<div class="brands-feed__avatar">A</div>' +
+          '<span class="brands-feed__username">anistudios</span>' +
+        '</div>' +
+        '<img class="brands-feed__post-img" data-feed-src="' + data.src + '" alt="Brand photography">' +
+        '<div class="brands-feed__post-caption">' +
+          '<span class="brands-feed__caption-user">anistudios</span> ' +
+          '<span class="brands-feed__caption-text">' + escapeHtml(data.caption) + '</span>' +
+        '</div>';
+
+      postsWrap.appendChild(post);
+    });
+
+    feedEl.appendChild(postsWrap);
+    feedBuilt = true;
+
+    // Lazy loading: IntersectionObserver watches feed images
+    // rootMargin 600px = preloads ~3 posts below the fold
+    var imgs = feedEl.querySelectorAll('.brands-feed__post-img[data-feed-src]');
+    feedObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var img = entry.target;
+          img.src = img.getAttribute('data-feed-src');
+          img.removeAttribute('data-feed-src');
+          feedObserver.unobserve(img);
+        }
+      });
+    }, {
+      root: feedEl,
+      rootMargin: '600px 0px',
+      threshold: 0
+    });
+
+    imgs.forEach(function(img) { feedObserver.observe(img); });
+  }
+
+  function openFeed(index) {
+    buildFeed();
+
+    // Lock body scroll (iOS-safe)
+    feedScrollPos = window.pageYOffset;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + feedScrollPos + 'px';
+    document.body.style.width = '100%';
+
+    feedEl.classList.add('is-active');
+    feedIsOpen = true;
+
+    // Get topbar height for scroll offset
+    var topbarEl = feedEl.querySelector('.brands-feed__topbar');
+    topbarHeight = topbarEl ? topbarEl.offsetHeight : 44;
+
+    // Force-load the tapped image + 4 neighbors immediately
+    var posts = feedEl.querySelectorAll('.brands-feed__post');
+    for (var i = Math.max(0, index - 1); i <= Math.min(sources.length - 1, index + 4); i++) {
+      var img = posts[i].querySelector('.brands-feed__post-img');
+      if (img && img.hasAttribute('data-feed-src')) {
+        img.src = img.getAttribute('data-feed-src');
+        img.removeAttribute('data-feed-src');
+        if (feedObserver) feedObserver.unobserve(img);
+      }
+    }
+
+    // Scroll to the tapped post instantly
+    var targetPost = posts[index];
+    requestAnimationFrame(function() {
+      // Use offsetTop to scroll directly — avoids smooth-scroll interference
+      // Subtract topbar height so the post sits just below the sticky bar
+      feedEl.scrollTop = targetPost.offsetTop - topbarHeight;
+    });
+  }
+
+  function closeFeed() {
+    feedEl.classList.remove('is-active');
+    feedEl.scrollTop = 0;
+    feedIsOpen = false;
+
+    // Restore body scroll
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    window.scrollTo(0, scrollPosition);
-
-    isOpen = false;
-    // Reset any lingering transform
-    image.style.transition = '';
-    image.style.transform = '';
+    window.scrollTo(0, feedScrollPos);
   }
 
-  function goToPrev() {
-    currentIndex = (currentIndex - 1 + sources.length) % sources.length;
-    updateContent();
-  }
+  // Escape key closes feed
+  document.addEventListener('keydown', function(e) {
+    if (feedIsOpen && e.key === 'Escape') closeFeed();
+  });
 
-  function goToNext() {
-    currentIndex = (currentIndex + 1) % sources.length;
-    updateContent();
-  }
+  // ============================================
+  //  GRID CLICK HANDLER
+  //  Mobile → Feed | Desktop → Lightbox
+  // ============================================
 
-  // Grid clicks
   items.forEach(function(item, i) {
-    item.addEventListener('click', function() { open(i); });
+    item.addEventListener('click', function() {
+      if (isMobile()) {
+        openFeed(i);
+      } else {
+        openLightbox(i);
+      }
+    });
     item.style.cursor = 'pointer';
   });
 
-  // Close handlers
-  closeBtn.addEventListener('click', function(e) { e.stopPropagation(); close(); });
-  overlay.addEventListener('click', close);
-
-  // Desktop: arrow button nav
-  prevBtn.addEventListener('click', function(e) { e.stopPropagation(); goToPrev(); });
-  nextBtn.addEventListener('click', function(e) { e.stopPropagation(); goToNext(); });
-
-  // Keyboard nav (desktop + mobile)
-  document.addEventListener('keydown', function(e) {
-    if (!isOpen) return;
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') goToPrev();
-    if (e.key === 'ArrowRight') goToNext();
-  });
-
-  // =============================================
-  //  MOBILE: Drag-to-swipe with smooth slide
-  //  Feels like native Instagram post swiping
-  // =============================================
-
-  var touchStartX = 0;
-  var touchStartY = 0;
-  var touchCurrentX = 0;
-  var isDragging = false;
-  var isHorizontalSwipe = null;
-  var animating = false;
-
-  content.addEventListener('touchstart', function(e) {
-    if (!isMobile() || animating) return;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    touchCurrentX = touchStartX;
-    isDragging = true;
-    isHorizontalSwipe = null;
-    image.style.transition = 'none';
-  }, { passive: true });
-
-  content.addEventListener('touchmove', function(e) {
-    if (!isMobile() || !isDragging || animating) return;
-
-    touchCurrentX = e.touches[0].clientX;
-    var dx = touchCurrentX - touchStartX;
-    var dy = e.touches[0].clientY - touchStartY;
-
-    // Determine direction on first significant move
-    if (isHorizontalSwipe === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-      isHorizontalSwipe = Math.abs(dx) > Math.abs(dy);
-    }
-
-    if (isHorizontalSwipe) {
-      e.preventDefault();
-      // Follow finger with slight resistance (0.85 multiplier for drag feel)
-      image.style.transform = 'translateX(' + (dx * 0.85) + 'px)';
-    }
-  }, { passive: false });
-
-  content.addEventListener('touchend', function(e) {
-    if (!isMobile() || !isDragging || animating) return;
-    isDragging = false;
-
-    if (!isHorizontalSwipe) {
-      image.style.transform = '';
-      image.style.transition = '';
-      return;
-    }
-
-    var dx = touchCurrentX - touchStartX;
-    var threshold = 50;
-    var vw = window.innerWidth;
-
-    if (Math.abs(dx) > threshold) {
-      // Commit swipe — slide current image off screen
-      animating = true;
-      var goingNext = dx < 0;
-      var slideOutX = goingNext ? -vw : vw;
-
-      image.style.transition = 'transform 0.2s ease-out';
-      image.style.transform = 'translateX(' + slideOutX + 'px)';
-
-      setTimeout(function() {
-        // Update to next/prev photo
-        if (goingNext) {
-          currentIndex = (currentIndex + 1) % sources.length;
-        } else {
-          currentIndex = (currentIndex - 1 + sources.length) % sources.length;
-        }
-
-        var data = sources[currentIndex];
-        image.src = data.src;
-        image.alt = data.caption;
-        if (captionText) captionText.textContent = data.caption;
-        if (igCaptionText) igCaptionText.textContent = data.caption;
-        preloadNeighbors(currentIndex);
-
-        // Position new image on the opposite side (off-screen)
-        image.style.transition = 'none';
-        image.style.transform = 'translateX(' + (-slideOutX) + 'px)';
-
-        // Force reflow so the browser registers the new position
-        void image.offsetWidth;
-
-        // Slide new image in from the side
-        image.style.transition = 'transform 0.25s ease-out';
-        image.style.transform = 'translateX(0)';
-
-        setTimeout(function() {
-          image.style.transition = '';
-          image.style.transform = '';
-          animating = false;
-        }, 260);
-      }, 200);
-
-    } else {
-      // Below threshold — snap back to center
-      image.style.transition = 'transform 0.2s ease-out';
-      image.style.transform = 'translateX(0)';
-      setTimeout(function() {
-        image.style.transition = '';
-        image.style.transform = '';
-      }, 210);
-    }
-  }, { passive: true });
-
-  // Eagerly preload first few images on page load
+  // Preload first few images for desktop lightbox
   for (var i = 0; i < Math.min(6, sources.length); i++) {
     preload(i);
   }
