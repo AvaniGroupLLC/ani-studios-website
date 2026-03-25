@@ -1399,52 +1399,59 @@ h3 {
   font-size: 0.85rem;
 }
 
-/* --- Brands Grid --- */
+/* --- Brands Grid (3-col editorial, matching Work page) --- */
 .brands-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  max-width: 1200px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 40px 80px;
 }
 
-.brand-item {
-  position: relative;
+.brand-card {
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-card__image {
+  width: 100%;
   overflow: hidden;
 }
 
-.brand-image {
+.brand-card__image img {
   width: 100%;
-  aspect-ratio: 3/2;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+  height: 400px;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-.brand-item:hover .brand-image {
+.brand-card:hover .brand-card__image img {
   transform: scale(1.02);
 }
 
-.brand-caption {
-  padding: 1.5rem 1.5rem 2rem;
+.brand-card__caption {
+  padding: 1rem 0 2.25rem;
   text-align: center;
 }
 
-.brand-caption h3 {
+.brand-card__caption h3 {
   font-family: 'Outfit', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
   font-weight: 300;
-  letter-spacing: 0.15em;
+  color: rgba(245, 240, 235, 0.78);
   text-transform: uppercase;
-  font-size: 0.85rem;
-  color: var(--text);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
 }
 
-.brand-caption p {
-  color: rgba(245, 240, 235, 0.45);
+.brand-card__caption p {
+  font-size: 0.58rem;
   font-weight: 300;
-  letter-spacing: 0.08em;
-  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: rgba(245, 240, 235, 0.35);
   text-transform: uppercase;
 }
 
@@ -1609,7 +1616,13 @@ h3 {
   }
 
   .brands-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 24px 60px;
+  }
+
+  .brand-card__image img {
+    height: 300px;
   }
 
   .about-content {
@@ -1654,12 +1667,331 @@ h3 {
     padding: 1.5rem 0;
   }
 
+  .brands-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 16px 48px;
+  }
+
+  .brand-card__image img {
+    height: auto;
+    max-height: 480px;
+    aspect-ratio: 3/2;
+  }
+
   .about-content {
     padding: 0 16px;
   }
 
   .inquire-content {
     padding: 0 16px 4rem;
+  }
+}
+
+/* ============================================
+   LIGHTBOX — Full-screen image viewer
+   ============================================ */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lightbox__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.lightbox__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 60px 80px 100px;
+}
+
+.lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: opacity 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lightbox__img.is-transitioning {
+  opacity: 0;
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 3;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.8rem;
+  font-weight: 200;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.lightbox__close:hover {
+  color: #fff;
+}
+
+.lightbox__prev,
+.lightbox__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 20px 16px;
+  transition: color 0.3s ease;
+}
+
+.lightbox__prev:hover,
+.lightbox__next:hover {
+  color: #fff;
+}
+
+.lightbox__prev { left: 8px; }
+.lightbox__next { right: 8px; }
+
+.lightbox__counter {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.lightbox__thumbs-toggle {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.lightbox__thumbs-toggle button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lightbox__thumbs-toggle button:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.lightbox__thumbs {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 40px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.lightbox__thumbs::-webkit-scrollbar { display: none; }
+
+.lightbox__thumbs.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.lightbox__thumbs-track {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  min-width: min-content;
+}
+
+.lightbox__thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 44px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.lightbox__thumb:hover {
+  opacity: 0.7;
+}
+
+.lightbox__thumb.is-active {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.lightbox__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Lightbox responsive */
+@media (max-width: 768px) {
+  .lightbox__stage {
+    padding: 50px 16px 80px;
+  }
+
+  .lightbox__prev { left: 2px; padding: 12px 8px; }
+  .lightbox__next { right: 2px; padding: 12px 8px; }
+
+  .lightbox__prev svg,
+  .lightbox__next svg {
+    width: 14px;
+    height: 24px;
+  }
+
+  .lightbox__thumbs {
+    padding: 0 16px;
+  }
+
+  .lightbox__thumb {
+    width: 48px;
+    height: 34px;
+  }
+}
+
+/* ============================================
+   HOMEPAGE — Single full-width photo section
+   ============================================ */
+.homepage-feature {
+  width: 100%;
+  overflow: hidden;
+}
+
+.homepage-feature img {
+  width: 100%;
+  height: 550px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .homepage-feature img {
+    height: 380px;
+  }
+}
+
+@media (max-width: 480px) {
+  .homepage-feature img {
+    height: 280px;
+  }
+}
+
+/* ============================================
+   PORTFOLIO — iframe embed page
+   ============================================ */
+.portfolio-iframe-container {
+  width: 100%;
+  height: calc(100vh - 60px);
+  margin-top: 60px;
+  overflow: hidden;
+}
+
+.portfolio-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ============================================
+   BRAND GALLERY — 3-column grid + gallery pages
+   ============================================ */
+.brand-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 6rem;
+}
+
+.brand-gallery-img {
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.brand-gallery-img img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.brand-gallery-img:hover img {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .brand-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 24px 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 16px 3rem;
   }
 }
 
@@ -1678,5 +2010,13 @@ h3 {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+
+  .lightbox {
+    transition: none;
+  }
+
+  .lightbox__img {
+    transition: none;
   }
 }
