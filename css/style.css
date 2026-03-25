@@ -1695,6 +1695,7 @@ h3 {
     max-height: none;
   }
 
+  /* Centered card layout — image + caption as a single unit */
   .brands-lightbox__content {
     flex-direction: column;
     height: 100vh;
@@ -1703,40 +1704,50 @@ h3 {
     border: none;
     border-radius: 0;
     overflow: hidden;
+    justify-content: center;
+    align-items: stretch;
+    box-sizing: border-box;
+    /* Asymmetric padding pushes card into upper ~40% center */
+    padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 15vh);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 15dvh);
   }
 
-  /* Image area: fixed at 60% of viewport, never more */
+  /* Image area: natural height, never more than 58% of viewport */
   .brands-lightbox__image-wrap {
-    flex: 0 0 60vh;
-    flex: 0 0 60dvh;
+    flex: 0 0 auto;
     min-height: 0;
-    max-height: 60vh;
-    max-height: 60dvh;
+    max-height: 58vh;
+    max-height: 58dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: 0 16px;
+    position: relative;
   }
 
   .brands-lightbox__image {
-    max-height: 60vh;
-    max-height: 60dvh;
-    width: 100%;
+    max-height: 58vh;
+    max-height: 58dvh;
+    max-width: calc(100vw - 32px);
+    width: auto;
+    height: auto;
     object-fit: contain;
   }
 
-  /* Caption area: fills remaining space, always visible */
+  /* Caption: flush below image, 16px gap, left-aligned per spec */
   .brands-lightbox__caption-panel {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     border-left: none;
-    border-top: 1px solid rgba(245, 240, 235, 0.06);
-    padding: 1rem 1.5rem;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    border-top: none;
+    padding: 16px 24px 0 24px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
     max-height: none;
+    background: transparent;
   }
 
   .brands-lightbox__caption-logo {
@@ -1752,16 +1763,14 @@ h3 {
     line-height: 1.5;
     color: rgba(245, 240, 235, 0.55);
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  /* Nav arrows: on the image, semi-transparent circles */
+  /* Nav arrows: JS positions these dynamically on the image center */
   .brands-lightbox__prev,
   .brands-lightbox__next {
-    top: 30vh;
-    top: 30dvh;
     transform: translateY(-50%);
     padding: 0;
     font-size: 1.3rem;
@@ -1774,6 +1783,7 @@ h3 {
     justify-content: center;
     -webkit-tap-highlight-color: transparent;
     color: rgba(255, 255, 255, 0.7);
+    transition: none;
   }
 
   .brands-lightbox__prev {
@@ -1805,22 +1815,19 @@ h3 {
 
 /* Extra-small phones */
 @media (max-width: 380px) {
+  .brands-lightbox__content {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12vh);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12dvh);
+  }
+
   .brands-lightbox__image-wrap {
-    flex: 0 0 55vh;
-    flex: 0 0 55dvh;
-    max-height: 55vh;
-    max-height: 55dvh;
+    max-height: 52vh;
+    max-height: 52dvh;
   }
 
   .brands-lightbox__image {
-    max-height: 55vh;
-    max-height: 55dvh;
-  }
-
-  .brands-lightbox__prev,
-  .brands-lightbox__next {
-    top: 27.5vh;
-    top: 27.5dvh;
+    max-height: 52vh;
+    max-height: 52dvh;
   }
 
   .brands-lightbox__caption-text {

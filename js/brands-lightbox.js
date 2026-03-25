@@ -49,12 +49,23 @@
     preload((index + 2) % sources.length);
   }
 
+  // Position prev/next arrows centered on the image area (mobile)
+  function positionArrows() {
+    if (window.innerWidth > 600) return;
+    var rect = imageWrap.getBoundingClientRect();
+    var center = rect.top + rect.height / 2;
+    prevBtn.style.top = center + 'px';
+    nextBtn.style.top = center + 'px';
+  }
+
   function updateContent() {
     var data = sources[currentIndex];
     image.src = data.src;
     image.alt = data.caption;
     captionText.textContent = data.caption;
     preloadNeighbors(currentIndex);
+    // Wait one frame for layout to settle, then position arrows
+    requestAnimationFrame(positionArrows);
   }
 
   function open(index) {
@@ -71,6 +82,11 @@
     lightbox.setAttribute('aria-hidden', 'false');
     lightbox.classList.add('is-active');
     isOpen = true;
+
+    // Position arrows after layout settles
+    requestAnimationFrame(function() {
+      requestAnimationFrame(positionArrows);
+    });
   }
 
   function close() {
@@ -140,6 +156,11 @@
       if (dx > 0) next(); else prev();
     }
   }, { passive: true });
+
+  // Reposition arrows on resize/orientation change
+  window.addEventListener('resize', function() {
+    if (isOpen) positionArrows();
+  });
 
   // Eagerly preload first few images on page load
   for (var i = 0; i < Math.min(6, sources.length); i++) {
