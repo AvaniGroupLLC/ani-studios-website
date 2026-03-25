@@ -127,6 +127,28 @@
     }
   }
 
+  // --- Work Page: Filter ---
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const workCards = document.querySelectorAll('.work-card[data-category]');
+  if (filterBtns.length > 0 && workCards.length > 0) {
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+
+        filterBtns.forEach((b) => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+
+        workCards.forEach((card) => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.classList.remove('is-hidden');
+          } else {
+            card.classList.add('is-hidden');
+          }
+        });
+      });
+    });
+  }
+
   // --- Smooth Scroll for Anchor Links ---
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {

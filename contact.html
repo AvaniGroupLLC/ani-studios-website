@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — ANI Studios</title>
+  <meta name="description" content="Get in touch with ANI Studios for luxury hospitality and architectural photography projects worldwide.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="page-transition"></div>
+
+  <nav class="nav" aria-label="Main navigation">
+    <div class="nav__logo">
+      <a href="index.html" aria-label="ANI Studios Home">ANI Studios</a>
+    </div>
+    <ul class="nav__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="is-active">Contact</a></li>
+    </ul>
+    <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="nav__mobile" aria-hidden="true">
+    <a href="index.html">Home</a>
+    <a href="work.html">Work</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <!-- Contact Header -->
+  <section class="contact-hero reveal">
+    <span class="label">Get in Touch</span>
+    <h1>Let's work together</h1>
+    <p>Whether you're planning a new campaign, refreshing your visual identity, or documenting a property for the first time — we'd love to hear about your project.</p>
+  </section>
+
+  <!-- Contact Body -->
+  <section class="contact-body">
+    <form class="contact-form reveal" action="https://formspree.io/f/placeholder" method="POST">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required autocomplete="name">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="company">Company / Property</label>
+        <input type="text" id="company" name="company" autocomplete="organization">
+      </div>
+
+      <div class="form-group">
+        <label for="project-type">Project Type</label>
+        <select id="project-type" name="project-type">
+          <option value="" disabled selected>Select a project type</option>
+          <option value="hospitality">Hospitality Photography</option>
+          <option value="architecture">Architectural Photography</option>
+          <option value="resort">Resort & Destination</option>
+          <option value="interiors">Interior Design</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Tell us about your project</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+      </div>
+
+      <button type="submit" class="btn">Send inquiry</button>
+    </form>
+
+    <div class="contact-details reveal">
+      <div class="contact-detail">
+        <span class="label">Email</span>
+        <a href="mailto:hello@anistudios.studio">hello@anistudios.studio</a>
+      </div>
+
+      <div class="contact-detail">
+        <span class="label">Based In</span>
+        <p>Los Angeles, California</p>
+        <p>Available worldwide</p>
+      </div>
+
+      <div class="contact-detail">
+        <span class="label">Follow</span>
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="footer__copy">&copy; 2026 ANI Studios. All rights reserved.</p>
+    <ul class="footer__links">
+      <li><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="ANI Studios on Instagram">Instagram</a></li>
+      <li><a href="mailto:hello@anistudios.studio" aria-label="Email ANI Studios">Email</a></li>
+    </ul>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
