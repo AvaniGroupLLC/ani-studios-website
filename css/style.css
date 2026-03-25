@@ -231,6 +231,9 @@ h3 {
 }
 
 /* --- Hero Section --- */
+/* Design reference: aman.com — photography-forward, extreme restraint,
+   subtle gradient only for legibility, light-weight typography with
+   generous letter-spacing. The image IS the content. */
 .hero {
   position: relative;
   width: 100%;
@@ -238,8 +241,8 @@ h3 {
   min-height: 600px;
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero__image {
@@ -252,6 +255,7 @@ h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 40%;
   will-change: transform;
 }
 
@@ -261,30 +265,29 @@ h3 {
   z-index: 2;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 10, 0.85) 0%,
-    rgba(10, 10, 10, 0.3) 40%,
-    rgba(10, 10, 10, 0.05) 70%,
-    transparent 100%
+    rgba(10, 10, 10, 0.30) 0%,
+    rgba(10, 10, 10, 0.08) 35%,
+    transparent 65%
   );
 }
 
 .hero__content {
   position: relative;
   z-index: 3;
-  padding: 0 3rem 5rem;
-  max-width: var(--max-width);
   width: 100%;
   text-align: center;
+  padding: 0 3rem;
+  margin-top: 15vh;
 }
 
 .hero__tagline {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 300;
-  letter-spacing: 0.45em;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 0.6rem;
 }
 
 .hero__title {
@@ -295,43 +298,13 @@ h3 {
 }
 
 .hero__subtitle {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 300;
-  letter-spacing: 0.08em;
-  color: rgba(245, 240, 235, 0.45);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1.7;
   margin: 0 auto;
-}
-
-.hero__scroll {
-  position: absolute;
-  bottom: 2rem;
-  right: 3rem;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.hero__scroll span {
-  font-size: 0.65rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  writing-mode: vertical-rl;
-}
-
-.hero__scroll-line {
-  width: 1px;
-  height: 48px;
-  background: var(--gold);
-  animation: scrollPulse 2s ease-in-out infinite;
-}
-
-@keyframes scrollPulse {
-  0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
-  50% { opacity: 1; transform: scaleY(1); }
 }
 
 /* --- Section Shared --- */
@@ -608,11 +581,18 @@ h3 {
   }
 
   .hero__content {
-    padding: 0 1.5rem 4rem;
+    padding: 0 1.5rem;
+    margin-top: 10vh;
   }
 
-  .hero__scroll {
-    display: none;
+  .hero__tagline {
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+  }
+
+  .hero__subtitle {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
   }
 
   .section {
@@ -621,7 +601,7 @@ h3 {
 
   .work-grid {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .about-preview {
@@ -663,12 +643,19 @@ h3 {
     font-size: 2rem;
   }
 
-  .work-card {
+  .work-grid--full {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .work-card__image img {
+    height: auto;
+    max-height: 480px;
     aspect-ratio: 3/2;
   }
 
-  .work-card__overlay {
-    opacity: 1;
+  .section--work {
+    padding: 32px 16px 48px;
   }
 
   .btn {
@@ -741,12 +728,18 @@ h3 {
 }
 
 /* --- Work Grid Full Width --- */
+/* Design reference: aman.com property grids — editorial spacing,
+   images breathe individually, magazine-spread density.
+   Desktop: 3-col, ~400px tall. Tablet: 2-col. Mobile: 1-col, 480px max. */
 .section--work {
-  padding-top: 2rem;
+  padding: 60px 40px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .work-grid--full {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
 }
 
 .work-card__location {
@@ -1127,7 +1120,16 @@ h3 {
   }
 
   .work-grid--full {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .work-card__image img {
+    height: 360px;
+  }
+
+  .section--work {
+    padding: 40px 24px 60px;
   }
 
   .project-hero {
@@ -1220,7 +1222,9 @@ h3 {
   padding: 4rem 2rem;
 }
 
-/* --- Work Card Caption Style (Cargo match) --- */
+/* --- Work Card Caption Style --- */
+/* Editorial grid: images at ~400px tall with generous caption spacing.
+   Each card should feel like a page in a luxury coffee table book. */
 .work-card__image {
   width: 100%;
   overflow: hidden;
@@ -1228,7 +1232,7 @@ h3 {
 
 .work-card__image img {
   width: 100%;
-  aspect-ratio: 3/2;
+  height: 400px;
   object-fit: cover;
   transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
@@ -1238,23 +1242,24 @@ h3 {
 }
 
 .work-card__caption {
-  padding: 0.9rem 0.2rem 1.8rem;
+  padding: 1rem 0 2.25rem;
   text-align: center;
 }
 
 .work-card__caption h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.35em;
-  font-weight: 400;
-  color: rgba(245, 240, 235, 0.7);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  font-weight: 300;
+  color: rgba(245, 240, 235, 0.78);
   text-transform: uppercase;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
 }
 
 .work-card__caption p {
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
   color: rgba(245, 240, 235, 0.35);
   text-transform: uppercase;
 }
