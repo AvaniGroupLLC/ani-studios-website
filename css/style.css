@@ -789,6 +789,17 @@ h3 {
   );
 }
 
+/* Stronger overlay for bright hero images — localized gradient behind text area */
+.project-hero--bright .project-hero__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.85) 0%,
+    rgba(10, 10, 10, 0.55) 35%,
+    rgba(10, 10, 10, 0.15) 60%,
+    transparent 80%
+  );
+}
+
 .project-hero__content {
   position: absolute;
   bottom: 0;
@@ -1545,26 +1556,30 @@ h3 {
   flex-direction: row;
   background: #0a0a0a;
   border: 1px solid rgba(245, 240, 235, 0.08);
-  overflow: hidden;
-  max-height: 80vh;
+  overflow: visible;
+  max-height: 85vh;
   width: 100%;
 }
 
 .brands-lightbox__image-wrap {
   flex: 1 1 60%;
   min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #000;
+  overflow: visible;
 }
 
 .brands-lightbox__image {
-  width: 100%;
+  max-width: 100%;
+  max-height: 85vh;
+  width: auto;
   height: auto;
-  max-height: 80vh;
   object-fit: contain;
   display: block;
+  margin: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -1654,6 +1669,7 @@ h3 {
   .brands-lightbox__content {
     flex-direction: column;
     max-height: 90vh;
+    overflow-y: auto;
   }
 
   .brands-lightbox__image-wrap {
@@ -1661,7 +1677,10 @@ h3 {
   }
 
   .brands-lightbox__image {
-    max-height: 55vh;
+    max-height: 65vh;
+    max-width: 100%;
+    width: auto;
+    height: auto;
   }
 
   .brands-lightbox__caption-panel {
@@ -1782,9 +1801,11 @@ h3 {
 
 .brands-feed__post-img {
   width: 100%;
+  height: auto;
   display: block;
   min-height: 100px;
   background: #111;
+  object-fit: contain;
 }
 
 .brands-feed__post-caption {
